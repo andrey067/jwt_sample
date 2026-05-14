@@ -1,0 +1,1 @@
+# Algoritmos de assinatura JWT
