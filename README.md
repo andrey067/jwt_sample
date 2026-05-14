@@ -20,3 +20,8 @@ uvicorn main:app --reload
 - `POST /auth/register` - Registro de novo usuário
 - `GET /protected` - Rota protegida (requer token)
 - `GET /health` - Health check
+
+## Usuários de teste
+
+- `admin` / `secret`
+- `user` / `secret`

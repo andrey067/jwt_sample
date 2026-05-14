@@ -23,24 +23,16 @@ app = FastAPI(
 
 @app.get("/", tags=["Root"])
 async def root():
-    """Rota raiz."""
     return {"message": "JWT Sample API", "docs": "/docs"}
 
 
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Health check endpoint."""
     return {"status": "healthy", "app": settings.app_name}
 
 
 @app.post("/auth/token", response_model=Token, tags=["Auth"])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    """
-    Endpoint para login e obtenção de token JWT.
-
-    - **username**: Nome de usuário
-    - **password**: Senha do usuário
-    """
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -57,12 +49,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.post("/auth/login", response_model=Token, tags=["Auth"])
 async def login(login_data: dict):
-    """
-    Endpoint alternativo para login (JSON body).
-
-    - **username**: Nome de usuário
-    - **password**: Senha do usuário
-    """
     username = login_data.get("username")
     password = login_data.get("password")
 
@@ -89,21 +75,12 @@ async def login(login_data: dict):
 
 @app.post("/auth/register", response_model=UserResponse, tags=["Auth"])
 async def register(user_data: UserCreate):
-    """
-    Endpoint para registro de novo usuário.
-
-    - **username**: Nome de usuário único
-    - **email**: Email do usuário (opcional)
-    - **password**: Senha do usuário
-    """
-    # Verifica se usuário já existe
     if get_user(user_data.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Nome de usuário já existe"
         )
 
-    # Verifica se email já está em uso
     for user in fake_users_db.values():
         if user.get("email") == user_data.email:
             raise HTTPException(
@@ -111,7 +88,6 @@ async def register(user_data: UserCreate):
                 detail="Email já está em uso"
             )
 
-    # Cria novo usuário
     new_id = max([u["id"] for u in fake_users_db.values()]) + 1
     new_user = {
         "id": new_id,
@@ -133,11 +109,6 @@ async def register(user_data: UserCreate):
 
 @app.get("/protected", response_model=UserResponse, tags=["Protected"])
 async def protected_route(current_user: dict = Depends(get_current_active_user)):
-    """
-    Rota protegida - requer token JWT válido.
-
-    Retorna informações do usuário autenticado.
-    """
     return UserResponse(
         id=current_user["id"],
         username=current_user["username"],
@@ -148,9 +119,6 @@ async def protected_route(current_user: dict = Depends(get_current_active_user))
 
 @app.get("/protected/data", tags=["Protected"])
 async def protected_data(current_user: dict = Depends(get_current_active_user)):
-    """
-    Rota protegida com dados de exemplo.
-    """
     return {
         "message": "Dados protegidos",
         "user": current_user["username"],
@@ -164,11 +132,6 @@ async def protected_data(current_user: dict = Depends(get_current_active_user)):
 
 @app.post("/auth/logout", response_model=MessageResponse, tags=["Auth"])
 async def logout(current_user: dict = Depends(get_current_active_user)):
-    """
-    Endpoint de logout (simulado).
-
-    Em uma aplicação real, você adicionaria o token a uma blacklist.
-    """
     return {"message": f"Usuário {current_user['username']} deslogado com sucesso"}
 
 
