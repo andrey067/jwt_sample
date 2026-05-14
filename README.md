@@ -8,7 +8,7 @@
 ## Instalação
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ## O que é JWT?
