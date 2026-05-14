@@ -1,22 +1,107 @@
-# JWT Sample Python
+# JWT - Demonstração Prática em C#
 
-Exemplo de implementação de autenticação JWT com FastAPI.
+## Pré-requisitos
 
-## Instalação
+* .NET 10.0
 
-```bash
-pip install -r requirements.txt
+## O que é JWT?
+
+JWT (JSON Web Token) é um padrão aberto (RFC 7519) para criar tokens de acesso seguros e autossuficientes. Um JWT é composto por três partes principais separadas por pontos (`.`):
+
+### 1. **Header (Cabeçalho)**
+Contém informações sobre o tipo de token e o algoritmo de assinatura utilizado.
+
+```json
+{
+  "typ": "JWT",
+  "alg": "PS256"
+}
 ```
 
-## Uso
+### 2. **Payload (Carga Útil)**
+Contém as informações (claims) que você deseja transmitir, como dados do usuário e permissões.
 
-```bash
-uvicorn main:app --reload
+```json
+{
+  "claim1": 10,
+  "claim2": "claim2-value",
+  "name": "Bruno Brito",
+  "given_name": "Bruno"
+}
 ```
 
-## Endpoints
+### 3. **Signature (Assinatura)**
+É a parte criptográfica que garante a integridade e autenticidade do token.
 
-- `POST /auth/login` - Login e obtenção do token JWT
-- `POST /auth/register` - Registro de novo usuário
-- `GET /protected` - Rota protegida (requer token)
-- `GET /health` - Health check
+## Como o JWT Funciona
+### Processo de Criação (JWS - JSON Web Signature)
+
+
+1. **Codificação do Header**: O header é codificado em Base64Url
+2. **Codificação do Payload**: O payload é codificado em Base64Url
+3. **Criação da Assinatura**: Os dois componentes acima são unidos por um ponto e assinados usando uma chave privada
+4. **Resultado**: `header.payload.signature` - um token autossuficiente
+
+### Processo de Validação
+
+Quando um servidor recebe um JWT, ele:
+
+1. Separa o token nas três partes (header, payload e signature)
+2. Decodifica o header e payload para ler as informações
+3. Recria a assinatura usando a mesma chave privada
+4. Compara a assinatura recriada com a assinatura do token
+5. Se forem idênticas, o token é válido e não foi modificado
+
+## Algoritmos de Assinatura Disponíveis
+
+Este projeto demonstra a implementação de três algoritmos de assinatura:
+
+### **HMAC (HMACSHA256)**
+- Usa um segredo compartilhado (chave simétrica)
+- Mais rápido, mas ambas as partes precisam conhecer o segredo
+- Ideal para comunicação entre sistemas confiáveis
+
+### **ECDsa (Elliptic Curve Digital Signature Algorithm)**
+- Usa criptografia de curva elíptica
+- Par de chaves pública/privada (assimétrica)
+- Mais eficiente que RSA com mesmo nível de segurança
+- Suporte a diferentes curvas: P-256, P-384, P-521
+
+### **RSA (Rivest-Shamir-Adleman)**
+- Usa fatoração de números grandes
+- Par de chaves pública/privada (assimétrica)
+- Amplamente utilizado e bem estabelecido
+- Tamanhos de chave: 2048 bits, 4096 bits
+
+## Fluxo do Projeto
+
+1. Define o header (tipo e algoritmo)
+2. Define o payload (dados do token)
+3. Codifica ambos em Base64Url
+4. Assina com a chave privada
+5. Codifica a assinatura em Base64Url
+6. Gera o token final: `header.payload.signature`
+
+## Como Executar
+
+```bash
+dotnet run
+```
+
+O programa exibe:
+- Header codificado
+- Payload codificado
+- Processo de assinatura
+- Token JWT final
+- Chaves públicas e privadas para validação em jwt.io
+
+## Algoritmo Padrão
+
+Por padrão, o projeto usa **RSA com PS256**, mas você pode alternar para:
+- ECDsa com ES256
+- HMAC com HS256
+
+Confira a arquivo `JwsExample.cs` para ver como mudar o algoritmo.
+
+
+
